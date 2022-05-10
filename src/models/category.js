@@ -1,17 +1,13 @@
 module.exports = (sequelize, type) => {
   return sequelize.define(
-    "registration",
+    "category",
     {
       id: {
         type: type.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      concept: type.STRING,
-      amount: type.INTEGER,
-      registrationTypeId: type.INTEGER,
-      categoryId: type.INTEGER,
-      userId: type.INTEGER,
+      category: type.STRING,
     },
     { freezeTableName: true, timestamps: true }
   );

@@ -1,7 +1,12 @@
 const router = require("express").Router();
 
 const { registration } = require("../database");
-const { validateId, validateData } = require("../routes/middlewares");
+const {
+  validateId,
+  validateData,
+  updateBalance,
+  checkAmount,
+} = require("../routes/middlewares");
 
 router.get("/", async (req, res) => {
   const Data = await registration.findAll();
@@ -15,7 +20,7 @@ router.get("/:dataId", validateId, async (req, res) => {
   res.json(Data);
 });
 
-router.post("/", validateData, async (req, res) => {
+router.post("/", validateData, checkAmount, updateBalance, async (req, res) => {
   const Data = await registration.create(req.body);
   res.json(Data);
 });
