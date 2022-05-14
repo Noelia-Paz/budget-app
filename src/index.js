@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const apiRouter = require("./routes/apiRoute");
 
 const app = express();
@@ -12,6 +11,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/api", apiRouter);
 
-app.listen(3000, () => {
-  console.log("server listening on port 3000");
+app.listen(4000, () => {
+  console.log("server listening on port 4000");
 });

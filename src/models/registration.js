@@ -12,6 +12,7 @@ module.exports = (sequelize, type) => {
       registrationTypeId: type.INTEGER,
       categoryId: type.INTEGER,
       userId: type.INTEGER,
+      date: type.STRING,
     },
     { freezeTableName: true, timestamps: true }
   );

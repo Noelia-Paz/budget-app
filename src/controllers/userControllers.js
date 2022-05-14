@@ -3,12 +3,11 @@ const router = Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv");
-
 const config = require("../config");
-
+const { validateDataUser } = require("../routes/middlewares");
 const { User, registration } = require("../database");
 
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", validateDataUser, async (req, res) => {
   const { username, email, password } = req.body;
   const user = new User({
     username,
@@ -23,16 +22,17 @@ router.post("/signup", async (req, res, next) => {
   });
 
   await registration.create({
-    concept: "start",
+    concept: "balance",
     amount: 0,
     registrationTypeId: 3,
     userId: user.id,
+    date: new Date().toISOString().slice(0, 10),
   });
 
   res.json({ auth: true, token });
 });
 
-router.post("/signin", async (req, res, next) => {
+router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findAll({

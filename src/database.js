@@ -1,5 +1,4 @@
 const Sequelize = require("sequelize");
-
 const RegistrationModel = require("./models/registration");
 const UserModel = require("./models/user");
 const RegistrationTypeModel = require("./models/registrationType");

@@ -1,15 +1,27 @@
-const { registration } = require("../database");
+const { registration, User } = require("../database");
 const { check } = require("express-validator");
 const { validation } = require("../routes/helper");
 
 const validateId = async (req, res, next) => {
-  const Data = await registration.findAll({
+  const data = await registration.findAll({
     where: { id: Number(req.params.dataId) },
   });
-  if (Data.length > 0) {
+  if (data.length > 0) {
     next();
   } else {
     return res.send("The registration does not exist!");
+  }
+};
+
+const validateUserId = async (req, res, next) => {
+  const data = await User.findAll({
+    where: { id: req.params.userId },
+  });
+
+  if (data.length > 0) {
+    next();
+  } else {
+    return res.send("The user does not exist!");
   }
 };
 
@@ -55,6 +67,15 @@ const updateBalance = async (req, res, next) => {
   next();
 };
 
+const validateDataUser = [
+  check("username", "Username is required!").not().isEmpty(),
+  check("email", "Email is required!").not().isEmpty().isEmail(),
+  check("password", "The password is required!").not().isEmpty(),
+  (req, res, next) => {
+    validation(req, res, next);
+  },
+];
+
 const validateData = [
   check("concept", "The concept cannot be empty, and must be letters")
     .exists()
@@ -71,6 +92,11 @@ const validateData = [
     .not()
     .isEmpty()
     .isNumeric(),
+  check("date", "The date cannot be empty, and must be letters")
+    .exists()
+    .not()
+    .isEmpty()
+    .isString(),
   (req, res, next) => {
     validation(req, res, next);
   },
@@ -81,4 +107,6 @@ module.exports = {
   validateId,
   validateData,
   updateBalance,
+  validateDataUser,
+  validateUserId,
 };
