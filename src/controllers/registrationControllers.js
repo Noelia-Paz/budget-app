@@ -1,5 +1,10 @@
 const router = require("express").Router();
-const { registration } = require("../database");
+const {
+  registration,
+  registrationType,
+  Category,
+  User,
+} = require("../database");
 const {
   validateId,
   validateUserId,
@@ -20,6 +25,13 @@ router.get("/:dataId", validateId, async (req, res) => {
   res.json(data);
 });
 
+router.get("/username/:userId", async (req, res) => {
+  const data = await User.findAll({
+    where: { id: req.params.userId },
+  });
+  res.json(data[0].username);
+});
+
 router.get("/userId/:userId", validateUserId, async (req, res) => {
   const data = await registration.findAll({
     where: { userId: req.params.userId },
@@ -29,7 +41,35 @@ router.get("/userId/:userId", validateUserId, async (req, res) => {
     return obj.registrationTypeId !== 3;
   });
 
-  res.json(registrations);
+  let lastRegistrations = registrations.slice(
+    Math.max(registrations.length - 10, 0)
+  );
+
+  const registrationsEdited = await lastRegistrations.map(
+    async (registration, key) => {
+      const registrationTypeName = await registrationType.findAll({
+        where: { id: registration.registrationTypeId },
+        attributes: ["type"],
+        raw: true,
+      });
+
+      const categoryTypeName = await Category.findAll({
+        where: { id: registration.categoryId },
+        attributes: ["category"],
+        raw: true,
+      });
+
+      const typeName = registrationTypeName[0].type;
+      const categoryName = categoryTypeName[0]?.category;
+
+      lastRegistrations[key].dataValues.registrationTypeId = typeName;
+      lastRegistrations[key].dataValues.categoryId = categoryName;
+    }
+  );
+
+  Promise.all(registrationsEdited).then(() => {
+    res.json(lastRegistrations);
+  });
 });
 
 router.get("/income/:userId", validateUserId, async (req, res) => {
@@ -37,22 +77,42 @@ router.get("/income/:userId", validateUserId, async (req, res) => {
     where: { userId: req.params.userId, registrationTypeId: 1 },
   });
 
-  if (data.length > 0) {
-    res.json(data);
-  } else {
-    return res.send("The user does not have an income!");
-  }
+  res.json(data);
 });
 
 router.get("/outcome/:userId", validateUserId, async (req, res) => {
-  const data = await registration.findAll({
+  const outcomeRegistrations = await registration.findAll({
     where: { userId: req.params.userId, registrationTypeId: 2 },
+  });
+
+  const registrationsEdited = await outcomeRegistrations.map(
+    async (registration, key) => {
+      const categoryTypeName = await Category.findAll({
+        where: { id: registration.categoryId },
+        attributes: ["category"],
+        raw: true,
+      });
+
+      const categoryName = categoryTypeName[0]?.category;
+
+      outcomeRegistrations[key].dataValues.categoryId = categoryName;
+    }
+  );
+
+  Promise.all(registrationsEdited).then(() => {
+    res.json(outcomeRegistrations);
+  });
+});
+
+router.get("/balance/:userId", validateUserId, async (req, res) => {
+  const data = await registration.findAll({
+    where: { userId: req.params.userId, registrationTypeId: 3 },
   });
 
   if (data.length > 0) {
     res.json(data);
   } else {
-    return res.send("The user does not have an outcome!");
+    return res.send("The user does not have a balance!");
   }
 });
 

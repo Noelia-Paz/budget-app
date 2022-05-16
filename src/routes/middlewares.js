@@ -46,12 +46,11 @@ const updateBalance = async (req, res, next) => {
     where: { registrationTypeId: 3, userId: req.body.userId },
   });
 
-  const registrationType = req.body.registrationTypeId;
+  const registrationType = Number(req.body.registrationTypeId);
 
   let currentBalance = balance[0].amount;
 
-  const amount = req.body.amount;
-
+  const amount = Number(req.body.amount);
   if (registrationType === 1) {
     currentBalance = amount + currentBalance;
   } else if (registrationType === 2) {

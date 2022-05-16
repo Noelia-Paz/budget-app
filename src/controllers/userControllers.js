@@ -54,6 +54,8 @@ router.post("/signin", async (req, res) => {
       message: "Password is incorrect!",
     });
   }
+
+  res.json({ auth: true, userId: user[0].id });
 });
 
 module.exports = router;
